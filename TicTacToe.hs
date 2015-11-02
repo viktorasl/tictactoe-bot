@@ -45,12 +45,24 @@ moveByScenario myPrev oppPrev scen board =
             case (takenCorner board) of
                 Just _ -> Just ((1, 1, mySign), nextScen) -- Take center
                 _ -> Nothing
-        (myPrev, _, Cell ExpOppositeCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        (Just (x, y, _), _, Cell ExpOppositeCorner nextScen, board) ->
+            case (indexOfField board (oppositeCorner (x, y))) of
+                Just _ ->
+                    case takeAnyEmptyCorner board of
+                        Just (anyX, anyY) -> Just ((anyX, anyY, mySign), nextScen) -- Take any empty corner
+                        _ -> Nothing
+                _ -> Nothing
         (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
         _ -> Nothing
 
 takenCorner :: Board -> Maybe Coords
 takenCorner board = listToMaybe $ filter (\coords' -> isJust (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
+
+oppositeCorner :: Coords -> Coords
+oppositeCorner (x, y) = (abs (x - 2), abs (y - 2))
+
+takeAnyEmptyCorner :: Board -> Maybe Coords
+takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 {-
 message to react to
