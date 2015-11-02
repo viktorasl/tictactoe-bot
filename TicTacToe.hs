@@ -7,7 +7,11 @@ type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
 
+-- temp default move identification
+defaultMove = (-1, -1, 'o')
 defaultField = (0, 0, 'o')
+mySign = 'o'
+oppSign = 'x'
 
 data ExpectedMove = ExpCenter | ExpAnyCorner | ExpOppositeCorner | ExpOppositeSelfCorner
     deriving Show
@@ -15,19 +19,31 @@ data List a = Empty | Cell a [(List a)]
     deriving Show
 
 mockCenter :: Board
-mockCenter = [(1, 1, 'x')]
+mockCenter = [(1, 1, oppSign)]
+
+mockCorner :: Board
+mockCorner = [(0, 0, oppSign)]
+
+expectedCenter :: List ExpectedMove
+expectedCenter = Cell ExpCenter [Cell ExpOppositeCorner []]
+
+expectedAnyCorner :: List ExpectedMove
+expectedAnyCorner = Cell ExpAnyCorner [Cell ExpOppositeSelfCorner []]
 
 expectedScenarios :: [List ExpectedMove]
-expectedScenarios = [Cell ExpCenter [Cell ExpOppositeCorner []], Cell ExpAnyCorner [Cell ExpOppositeSelfCorner []]]
+expectedScenarios = [expectedCenter, expectedAnyCorner]
 
-move :: Maybe BoardField -> Maybe BoardField -> List ExpectedMove -> Board -> (BoardField, [List ExpectedMove])
-move myPrev oppPrev scen board =
+moveByScenario :: Maybe BoardField -> Maybe BoardField -> List ExpectedMove -> Board -> Maybe (BoardField, [List ExpectedMove])
+moveByScenario myPrev oppPrev scen board =
     case (myPrev, oppPrev, scen, board) of
-        (_, _, Cell ExpCenter nextScen, board) -> (defaultField, [Cell ExpCenter nextScen])
-        (_, _, Cell ExpAnyCorner nextScen, board) -> (defaultField, [Cell ExpCenter nextScen])
-        (myPrev, _, Cell ExpOppositeCorner nextScen, board) -> (defaultField, [Cell ExpCenter nextScen])
-        (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> (defaultField, [Cell ExpCenter nextScen])
-        (_, _, Empty, board) -> (defaultField, [])
+        (_, _, Cell ExpCenter nextScen, board) ->
+            case (indexOfField board (1, 1)) of
+                Just a -> Just ((0, 0, mySign), nextScen) -- Take any corner
+                _ -> Nothing
+        (_, _, Cell ExpAnyCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        (myPrev, _, Cell ExpOppositeCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        _ -> Nothing
 
 {-
 message to react to
