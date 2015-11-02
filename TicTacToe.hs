@@ -2,6 +2,7 @@ module TicTacToe
 where
 import Data.Char
 import Data.List
+import Data.Maybe
 
 type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
@@ -38,12 +39,27 @@ moveByScenario myPrev oppPrev scen board =
     case (myPrev, oppPrev, scen, board) of
         (_, _, Cell ExpCenter nextScen, board) ->
             case (indexOfField board (1, 1)) of
-                Just a -> Just ((0, 0, mySign), nextScen) -- Take any corner
+                Just _ -> Just ((0, 0, mySign), nextScen) -- Take any corner
                 _ -> Nothing
-        (_, _, Cell ExpAnyCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        (_, _, Cell ExpAnyCorner nextScen, board) ->
+            case (takenCorner board) of
+                Just _ -> Just ((1, 1, mySign), nextScen) -- Take center
+                _ -> Nothing
         (myPrev, _, Cell ExpOppositeCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
         (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
         _ -> Nothing
+
+containsCoords :: Board -> Coords -> Bool
+containsCoords board coords =
+    case indexOfField board coords of
+        Just _ -> True
+        Nothing -> False
+
+dontAskApp :: Maybe Integer
+dontAskApp = (*) <$> Just 54 <*> Just 67
+
+takenCorner :: Board -> Maybe Coords
+takenCorner board = listToMaybe $ filter (\coords' -> containsCoords board coords') [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 {-
 message to react to
