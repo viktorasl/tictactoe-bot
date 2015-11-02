@@ -38,6 +38,19 @@ testFour = moveByScenario (Just (1, 1, mySign)) (Just (0, 2, oppSign)) (Cell Exp
 expectedScenarios :: [List ExpectedMove]
 expectedScenarios = [expectedCenter, expectedAnyCorner]
 
+matchingScenario :: Maybe BoardField -> Maybe BoardField -> [List ExpectedMove] -> Board -> Maybe (BoardField, [List ExpectedMove])
+matchingScenario myPrev oppPrev scens board =
+    listToMaybe $
+        map fromJust $
+            filter isJust $
+                map (\scen -> moveByScenario myPrev oppPrev scen board) scens
+
+testMachingScenario1 :: Maybe (BoardField, [List ExpectedMove])
+testMachingScenario1 = matchingScenario Nothing Nothing expectedScenarios [(0, 2, oppSign)]
+
+testMachingScenario2 :: Maybe (BoardField, [List ExpectedMove])
+testMachingScenario2 = matchingScenario Nothing Nothing expectedScenarios [(1, 1, oppSign)]
+
 moveByScenario :: Maybe BoardField -> Maybe BoardField -> List ExpectedMove -> Board -> Maybe (BoardField, [List ExpectedMove])
 moveByScenario myPrev oppPrev scen board =
     case (myPrev, oppPrev, scen, board) of
