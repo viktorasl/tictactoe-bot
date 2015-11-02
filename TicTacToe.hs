@@ -49,17 +49,8 @@ moveByScenario myPrev oppPrev scen board =
         (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
         _ -> Nothing
 
-containsCoords :: Board -> Coords -> Bool
-containsCoords board coords =
-    case indexOfField board coords of
-        Just _ -> True
-        Nothing -> False
-
-dontAskApp :: Maybe Integer
-dontAskApp = (*) <$> Just 54 <*> Just 67
-
 takenCorner :: Board -> Maybe Coords
-takenCorner board = listToMaybe $ filter (\coords' -> containsCoords board coords') [(0, 0), (0, 2), (2, 0), (2, 2)]
+takenCorner board = listToMaybe $ filter (\coords' -> isJust (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 {-
 message to react to
