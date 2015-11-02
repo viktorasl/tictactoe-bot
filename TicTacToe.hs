@@ -19,17 +19,20 @@ data ExpectedMove = ExpCenter | ExpAnyCorner | ExpOppositeCorner | ExpOppositeSe
 data List a = Empty | Cell a [(List a)]
     deriving Show
 
-mockCenter :: Board
-mockCenter = [(1, 1, oppSign)]
-
-mockCorner :: Board
-mockCorner = [(0, 0, oppSign)]
-
 expectedCenter :: List ExpectedMove
 expectedCenter = Cell ExpCenter [Cell ExpOppositeCorner []]
 
 expectedAnyCorner :: List ExpectedMove
 expectedAnyCorner = Cell ExpAnyCorner [Cell ExpOppositeSelfCorner []]
+
+testOne :: Maybe (BoardField, [List ExpectedMove])
+testOne = moveByScenario Nothing Nothing expectedCenter [(1, 1, oppSign)]
+
+testTwo :: Maybe (BoardField, [List ExpectedMove])
+testTwo = moveByScenario Nothing Nothing expectedAnyCorner [(0, 0, oppSign)]
+
+testThree :: Maybe (BoardField, [List ExpectedMove])
+testThree = moveByScenario (Just (2, 2, mySign)) (Just (0, 0, oppSign)) (Cell ExpOppositeCorner []) [(0, 0, oppSign), (1, 1, oppSign), (2, 2, mySign)]
 
 expectedScenarios :: [List ExpectedMove]
 expectedScenarios = [expectedCenter, expectedAnyCorner]
