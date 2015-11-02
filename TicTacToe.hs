@@ -4,82 +4,71 @@ import Data.Char
 import Data.List
 import Data.Maybe
 
+mySign = 'o'
+oppSign = 'x'
+defaultField = (0, 0, mySign)
+
+data ExpectedMove a = NoExp | ExpCenter | ExpAnyCorner | ExpOppositeCorner a | ExpOppositeSelfCorner a
+    deriving (Show, Eq)
+
 type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
+type ScenarioMove = (Maybe BoardField, ExpectedMove Coords)
 
-defaultField = (0, 0, 'o')
-mySign = 'o'
-oppSign = 'x'
+testCase :: (Eq a) => a -> a -> String
+testCase res exp = if (res == exp) then "Pass" else "Fail"
 
-data ExpectedMove = ExpCenter | ExpAnyCorner | ExpOppositeCorner | ExpOppositeSelfCorner
-    deriving Show
-data List a = Empty | Cell a [(List a)]
-    deriving Show
+testScenarioMoves :: [String]
+testScenarioMoves = [
+    testCase (moveByScenario ExpCenter [(1, 1, oppSign)]) (Just (0, 0, mySign), ExpOppositeCorner (2, 2)),
+    testCase (moveByScenario ExpAnyCorner [(0, 2, oppSign)]) (Just (1, 1, mySign), ExpOppositeSelfCorner (2, 0)),
+    testCase (moveByScenario (ExpOppositeCorner (0, 2)) [(0, 0, oppSign), (1, 1, oppSign), (0, 2, mySign)]) (Just (2, 0, mySign), NoExp),
+    testCase (moveByScenario (ExpOppositeSelfCorner (2, 2)) [(0, 0, oppSign), (1, 1, mySign), (2, 2, oppSign)]) (Just (0, 1, mySign), NoExp)
+    ]
 
-expectedCenter :: List ExpectedMove
-expectedCenter = Cell ExpCenter [Cell ExpOppositeCorner []]
+testMatchingScenarios :: [String]
+testMatchingScenarios = [
+    testCase (matchingScenario [ExpCenter, ExpAnyCorner] [(1, 1, oppSign)]) (Just (Just (0, 0, mySign), ExpOppositeCorner (2, 2))),
+    testCase (matchingScenario [ExpCenter, ExpAnyCorner] [(1, 0, oppSign)]) (Nothing),
+    testCase (matchingScenario [ExpOppositeSelfCorner (2, 0)] [(0, 2, oppSign), (1, 1, mySign), (2, 0, oppSign)]) (Just (Just (0, 1, mySign), NoExp))
+    ]
 
-expectedAnyCorner :: List ExpectedMove
-expectedAnyCorner = Cell ExpAnyCorner [Cell ExpOppositeSelfCorner []]
-
-testOne :: Maybe (BoardField, [List ExpectedMove])
-testOne = moveByScenario Nothing Nothing expectedCenter [(1, 1, oppSign)]
-
-testTwo :: Maybe (BoardField, [List ExpectedMove])
-testTwo = moveByScenario Nothing Nothing expectedAnyCorner [(0, 0, oppSign)]
-
-testThree :: Maybe (BoardField, [List ExpectedMove])
-testThree = moveByScenario (Just (2, 2, mySign)) (Just (0, 0, oppSign)) (Cell ExpOppositeCorner []) [(0, 0, oppSign), (1, 1, oppSign), (2, 2, mySign)]
-
-testFour :: Maybe (BoardField, [List ExpectedMove])
-testFour = moveByScenario (Just (1, 1, mySign)) (Just (0, 2, oppSign)) (Cell ExpOppositeSelfCorner []) [(0, 2, oppSign), (1, 1, mySign), (2, 0, oppSign)]
-
-expectedScenarios :: [List ExpectedMove]
-expectedScenarios = [expectedCenter, expectedAnyCorner]
-
-matchingScenario :: Maybe BoardField -> Maybe BoardField -> [List ExpectedMove] -> Board -> Maybe (BoardField, [List ExpectedMove])
-matchingScenario myPrev oppPrev scens board =
+matchingScenario :: [ExpectedMove Coords] -> Board -> Maybe ScenarioMove
+matchingScenario scens board = 
     listToMaybe $
-        map fromJust $
-            filter isJust $
-                map (\scen -> moveByScenario myPrev oppPrev scen board) scens
+            filter (\(field, _) -> isJust field) $
+                map (\scen -> moveByScenario scen board) scens
 
-testMachingScenario1 :: Maybe (BoardField, [List ExpectedMove])
-testMachingScenario1 = matchingScenario Nothing Nothing expectedScenarios [(0, 2, oppSign)]
-
-testMachingScenario2 :: Maybe (BoardField, [List ExpectedMove])
-testMachingScenario2 = matchingScenario Nothing Nothing expectedScenarios [(1, 1, oppSign)]
-
-moveByScenario :: Maybe BoardField -> Maybe BoardField -> List ExpectedMove -> Board -> Maybe (BoardField, [List ExpectedMove])
-moveByScenario myPrev oppPrev scen board =
-    case (myPrev, oppPrev, scen, board) of
-        (_, _, Cell ExpCenter nextScen, board) ->
-            case (indexOfField board (1, 1)) of
-                Just _ -> Just ((0, 0, mySign), nextScen) -- Take any corner
-                _ -> Nothing
-        (_, _, Cell ExpAnyCorner nextScen, board) ->
-            case (takenCorner board) of
-                Just _ -> 
-                    case takeCenter board of
-                        Just (x, y) -> Just ((x, y, mySign), nextScen) -- Take center
-                        _ -> Nothing
-                _ -> Nothing
-        (Just (x, y, _), _, Cell ExpOppositeCorner nextScen, board) ->
-            case (indexOfField board (oppositeCorner (x, y))) of
+moveByScenario :: ExpectedMove Coords -> Board -> ScenarioMove
+moveByScenario scen board =
+    case scen of
+        ExpCenter ->
+            case indexOfField board (1, 1) of
+                Just _ -> (Just (0, 0, mySign), ExpOppositeCorner (2, 2)) -- Take any corner
+                _ -> (Nothing, NoExp)
+        ExpOppositeCorner coords ->
+            case indexOfField board coords of
                 Just _ ->
                     case takeAnyEmptyCorner board of
-                        Just (anyX, anyY) -> Just ((anyX, anyY, mySign), nextScen) -- Take any empty corner
-                        _ -> Nothing
-                _ -> Nothing
-        (_, Just (x, y, _), Cell ExpOppositeSelfCorner nextScen, board) ->
-            case (indexOfField board (oppositeCorner (x, y))) of
+                        Just (x, y) -> (Just (x, y, mySign), NoExp) -- Take any corner
+                        _ -> (Nothing, NoExp)
+                _ -> (Nothing, NoExp)
+        ExpAnyCorner ->
+            case takenCorner board of
+                Just takenCorner' ->
+                    case takeCenter board of
+                        Just (x, y) -> (Just (x, y, mySign), ExpOppositeSelfCorner (oppositeCorner takenCorner')) -- Take center
+                        _ -> (Nothing, NoExp)
+                _ -> (Nothing, NoExp)
+        ExpOppositeSelfCorner coords ->
+            case indexOfField board coords of
                 Just _ ->
                     case takeAnyDiagonalLine board of
-                        Just (anyX, anyY) -> Just ((anyX, anyY, mySign), nextScen) -- Take any empty diagonal line
-                        _ -> Nothing
-                _ -> Nothing
-        _ -> Nothing
+                        Just (x, y) -> (Just (x, y, mySign), NoExp) -- Take any empty diagonal line
+                        _ -> (Nothing, NoExp)
+                _ -> (Nothing, NoExp)
+        NoExp -> (Nothing, NoExp)
 
 takenCorner :: Board -> Maybe Coords
 takenCorner board = listToMaybe $ filter (\coords' -> isJust (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
