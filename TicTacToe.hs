@@ -8,8 +8,6 @@ type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
 
--- temp default move identification
-defaultMove = (-1, -1, 'o')
 defaultField = (0, 0, 'o')
 mySign = 'o'
 oppSign = 'x'
@@ -34,6 +32,9 @@ testTwo = moveByScenario Nothing Nothing expectedAnyCorner [(0, 0, oppSign)]
 testThree :: Maybe (BoardField, [List ExpectedMove])
 testThree = moveByScenario (Just (2, 2, mySign)) (Just (0, 0, oppSign)) (Cell ExpOppositeCorner []) [(0, 0, oppSign), (1, 1, oppSign), (2, 2, mySign)]
 
+testFour :: Maybe (BoardField, [List ExpectedMove])
+testFour = moveByScenario (Just (1, 1, mySign)) (Just (0, 2, oppSign)) (Cell ExpOppositeSelfCorner []) [(0, 2, oppSign), (1, 1, mySign), (2, 0, oppSign)]
+
 expectedScenarios :: [List ExpectedMove]
 expectedScenarios = [expectedCenter, expectedAnyCorner]
 
@@ -55,7 +56,13 @@ moveByScenario myPrev oppPrev scen board =
                         Just (anyX, anyY) -> Just ((anyX, anyY, mySign), nextScen) -- Take any empty corner
                         _ -> Nothing
                 _ -> Nothing
-        (_, oppPrev, Cell ExpOppositeSelfCorner nextScen, board) -> Just (defaultField, [Cell ExpCenter nextScen])
+        (_, Just (x, y, _), Cell ExpOppositeSelfCorner nextScen, board) ->
+            case (indexOfField board (oppositeCorner (x, y))) of
+                Just _ ->
+                    case takeAnyDiagonalLine board of
+                        Just (anyX, anyY) -> Just ((anyX, anyY, mySign), nextScen) -- Take any empty diagonal line
+                        _ -> Nothing
+                _ -> Nothing
         _ -> Nothing
 
 takenCorner :: Board -> Maybe Coords
@@ -66,6 +73,9 @@ oppositeCorner (x, y) = (abs (x - 2), abs (y - 2))
 
 takeAnyEmptyCorner :: Board -> Maybe Coords
 takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
+
+takeAnyDiagonalLine :: Board -> Maybe Coords
+takeAnyDiagonalLine board = listToMaybe $ filter (\coords' -> isNothing (indexOfField board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
 
 {-
 message to react to
