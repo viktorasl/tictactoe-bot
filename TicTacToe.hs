@@ -7,6 +7,7 @@ import Data.Maybe
 mySign = 'o'
 oppSign = 'x'
 defaultField = (0, 0, mySign)
+fakeField = (-1, -1, mySign)
 
 data ExpectedMove a = NoExp | ExpCenter | ExpAnyCorner | ExpOppositeCorner a | ExpOppositeSelfCorner a
     deriving (Show, Eq)
@@ -33,6 +34,27 @@ testMatchingScenarios = [
     testCase (matchingScenario [ExpCenter, ExpAnyCorner] [(1, 0, oppSign)]) (Nothing),
     testCase (matchingScenario [ExpOppositeSelfCorner (2, 0)] [(0, 2, oppSign), (1, 1, mySign), (2, 0, oppSign)]) (Just ((0, 1, mySign), NoExp))
     ]
+
+testMiniPlays :: [String]
+testMiniPlays = [
+    testCase (miniPlay [(2, 0), (0, 2), (2, 1)] [ExpCenter, ExpAnyCorner] []) ([(-1,-1,'o'),(2,1,'x'),(0,1,'o'),(0,2,'x'),(1,1,'o'),(2,0,'x')]),
+    testCase (miniPlay [(1, 1), (2, 2), (1, 0)] [ExpCenter, ExpAnyCorner] []) ([(-1,-1,'o'),(1,0,'x'),(0,2,'o'),(2,2,'x'),(0,0,'o'),(1,1,'x')])
+    ]
+
+miniPlay :: [Coords] -> [ExpectedMove Coords] -> Board -> Board
+miniPlay att scen board =
+    case att of
+        [] -> board
+        ((x, y) : left) -> let
+            newBoard = ((x, y, oppSign) : board)
+            (moveField, exp) = def scen newBoard
+            in miniPlay left [exp] (moveField : newBoard)
+
+def :: [ExpectedMove Coords] -> Board -> (BoardField, (ExpectedMove Coords))
+def scens board =
+    case matchingScenario scens board of
+        Just (moveField, exp) -> (moveField, exp)
+        _ -> (fakeField, NoExp)
 
 matchingScenario :: [ExpectedMove Coords] -> Board -> Maybe ScenarioMove
 matchingScenario scens board = 
