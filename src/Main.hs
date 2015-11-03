@@ -8,13 +8,18 @@ import Tictactoe.Att
 import Tictactoe.HTTPHelper
 
 gameURLStr :: String
-gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex18"
+gameURLStr = "http://tictactoe.homedir.eu/game/"
 
 main :: IO ()
 main = do
-    playDefender gameURLStr
-    playAttacker gameURLStr
-    --putStrLn "resp"
+    putStrLn "Game name: "  
+    name <- getLine
+    putStrLn "Game mode: (D | A)?"
+    mode <- getLine
+    case mode of
+        "D" -> playDefender (gameURLStr ++ name)
+        "A" -> playAttacker (gameURLStr ++ name)
+        _ -> putStrLn "Game mode is unknown"
 
 playDefender :: String -> IO ()
 playDefender url = playDefender' url [ExpCenter, ExpAnyCorner]
