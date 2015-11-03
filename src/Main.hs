@@ -18,7 +18,6 @@ data RowInfo = RowInfo {
     , matchSign :: Int
 } deriving Show
 
-type Coords = (Int, Int)
 type ScenarioMove = (BoardField, ExpectedMove Coords)
 
 main :: IO ()
@@ -231,12 +230,3 @@ parseBoardField' str field =
 
 parseBoardFieldKey :: String -> (Char, String)
 parseBoardFieldKey str = (head $ drop 2 str, drop 3 str)
-
--- Field lookup
-
-fieldExists :: Board -> Coords -> Maybe BoardField
-fieldExists board coords = listToMaybe $ filter (\field' -> coordsEqual coords field') board
-
-coordsEqual :: Coords -> BoardField -> Bool
-coordsEqual (x1, y1) (x2, y2, _) = if (x1 == x2 && y1 == y2) then True else False 
-
