@@ -15,9 +15,9 @@ gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex13/"
 main :: IO ()
 main = do
     --playAttacker gameURLStr
-    resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
-    putStrLn resp
-    waitForMove [ExpCenter, ExpAnyCorner]
+    --resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
+    putStrLn "resp"
+    --waitForMove [ExpCenter, ExpAnyCorner]
 
 mockResp :: IO String
 mockResp = do
@@ -25,7 +25,6 @@ mockResp = do
 
 waitForMove :: [ExpectedMove Coords] -> IO ()
 waitForMove scens = do
-    --response <- mockResp
     response <- getMove (gameURLStr ++ "player/2")
     case parseBoard response of
         board -> 
