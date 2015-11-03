@@ -45,6 +45,18 @@ testMiniPlays = [
     testCase (miniPlay [(1, 1), (2, 2), (1, 0)] [ExpCenter, ExpAnyCorner] []) ([(0,2,'o'),(2,2,'x'),(0,0,'o'),(1,1,'x')])
     ]
 
+testFinishingMoves :: [String]
+testFinishingMoves = [
+    testCase (finishingBlock [(1, 1, 'x'), (2, 2, 'x')]) (Just (0,0)),
+    testCase (finishingWin [(1, 1, 'x'), (2, 2, 'x')]) Nothing,
+    testCase (finishingBlock [(1,1,'x'),(2,2,'o'),(0,0,'o')]) Nothing,
+    testCase (finishingBlock [(1,0,'x'),(1,1,'x')]) (Just (1,2)),
+    testCase (finishingWin [(1,0,'x'),(1,1,'x')]) Nothing,
+    testCase (finishingWin [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o')]) (Just (0,2)),
+    testCase (finishingWin [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')]) Nothing,
+    testCase (finishingBlock [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')]) (Just (0,1))
+    ]
+
 miniPlay :: [Coords] -> [ExpectedMove Coords] -> Board -> Board
 miniPlay att scen board =
     case att of
@@ -62,10 +74,19 @@ def scens board =
         Just (moveField, exp) -> Just (moveField, exp)
         _ -> Nothing
 
-rw :: [[Coords]]
-rw = [[(a,b) | b <- [0..2]] | a <- [0..2]]
-
 -- Finishing moves
+
+finishingWin :: Board -> Maybe Coords
+finishingWin board = finishingMove board mySign
+
+finishingBlock :: Board -> Maybe Coords
+finishingBlock block = finishingMove block oppSign
+
+finishingMove :: Board -> Char -> Maybe Coords
+finishingMove board sign = let
+    infos = (finishHorizontal board sign) ++ (finishVertical board sign) ++ (finishDiagonal board sign)
+    satInfos = filter (\info -> ((matchSign info) == 2) && ((length (free info)) == 1)) infos
+    in listToMaybe $ map (\info -> head (free info)) satInfos
 
 finishHorizontal :: Board -> Char -> [RowInfo]
 finishHorizontal board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | b <- [0..2]] | a <- [0..2]]
