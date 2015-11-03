@@ -11,6 +11,10 @@ fakeField = (-1, -1, mySign)
 
 data ExpectedMove a = NoExp | ExpCenter | ExpAnyCorner | ExpOppositeCorner a | ExpOppositeSelfCorner a
     deriving (Show, Eq)
+data RowInfo = RowInfo {
+    free :: [Coords]
+    , matchSign :: Int
+}
 
 type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
@@ -58,6 +62,19 @@ def scens board =
         Just (moveField, exp) -> Just (moveField, exp)
         _ -> Nothing
 
+seqInfo' :: [Coords] -> Board -> Char -> RowInfo -> RowInfo
+seqInfo' coords board sign rowInfo =
+    case coords of
+        [] -> rowInfo
+        (c : left) ->
+            case fieldExists board c of
+                Just (x, y, s) ->
+                    if s == sign then
+                        seqInfo' coords board sign (RowInfo (free rowInfo) ((matchSign rowInfo) + 1))
+                    else
+                        seqInfo' coords board sign (RowInfo (free rowInfo) (matchSign rowInfo))
+                Nothing -> seqInfo' coords board sign (RowInfo (c : (free rowInfo)) (matchSign rowInfo))
+
 matchingScenario :: [ExpectedMove Coords] -> Board -> Maybe ScenarioMove
 matchingScenario scens board = 
     listToMaybe $
@@ -69,11 +86,11 @@ moveByScenario :: ExpectedMove Coords -> Board -> Maybe ScenarioMove
 moveByScenario scen board =
     case scen of
         ExpCenter ->
-            case indexOfField board (1, 1) of
+            case fieldExists board (1, 1) of
                 Just _ -> Just ((0, 0, mySign), ExpOppositeCorner (2, 2)) -- Take any corner
                 _ -> Nothing
         ExpOppositeCorner coords ->
-            case indexOfField board coords of
+            case fieldExists board coords of
                 Just _ ->
                     case takeAnyEmptyCorner board of
                         Just (x, y) -> Just ((x, y, mySign), NoExp) -- Take any corner
@@ -87,7 +104,7 @@ moveByScenario scen board =
                         _ -> Nothing
                 _ -> Nothing
         ExpOppositeSelfCorner coords ->
-            case indexOfField board coords of
+            case fieldExists board coords of
                 Just _ ->
                     case takeAnyDiagonalLine board of
                         Just (x, y) -> Just ((x, y, mySign), NoExp) -- Take any empty diagonal line
@@ -96,22 +113,22 @@ moveByScenario scen board =
         NoExp -> Nothing
 
 takenCorner :: Board -> Maybe Coords
-takenCorner board = listToMaybe $ filter (\coords' -> isJust (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
+takenCorner board = listToMaybe $ filter (\coords' -> isJust (fieldExists board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 oppositeCorner :: Coords -> Coords
 oppositeCorner (x, y) = (abs (x - 2), abs (y - 2))
 
 takeCenter :: Board -> Maybe Coords
 takeCenter board =
-    case (indexOfField board (1, 1)) of
+    case (fieldExists board (1, 1)) of
         Just _ -> Nothing
         Nothing -> Just (1, 1)
 
 takeAnyEmptyCorner :: Board -> Maybe Coords
-takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (indexOfField board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
+takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
 
 takeAnyDiagonalLine :: Board -> Maybe Coords
-takeAnyDiagonalLine board = listToMaybe $ filter (\coords' -> isNothing (indexOfField board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
+takeAnyDiagonalLine board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
 
 {-
 message to react to
@@ -163,8 +180,8 @@ parseBoardFieldKey str = (head $ drop 2 str, drop 3 str)
 
 -- Field lookup
 
-indexOfField :: Board -> Coords -> Maybe Int
-indexOfField board coords = findIndex (\field' -> coordsEqual coords field') board
+fieldExists :: Board -> Coords -> Maybe BoardField
+fieldExists board coords = listToMaybe $ filter (\field' -> coordsEqual coords field') board
 
 coordsEqual :: Coords -> BoardField -> Bool
 coordsEqual (x1, y1) (x2, y2, _) = if (x1 == x2 && y1 == y2) then True else False 
