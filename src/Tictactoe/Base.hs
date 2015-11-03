@@ -6,6 +6,9 @@ type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
 
+mySign = 'o'
+oppSign = 'x'
+
 fieldExists :: Board -> Coords -> Maybe BoardField
 fieldExists board coords = listToMaybe $ filter (\field' -> coordsEqual coords field') board
 
