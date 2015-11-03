@@ -71,8 +71,23 @@ miniPlay att scen board =
 def :: [ExpectedMove Coords] -> Board -> Maybe (BoardField, (ExpectedMove Coords))
 def scens board =
     case matchingScenario scens board of
-        Just (moveField, exp) -> Just (moveField, exp)
-        _ -> Nothing
+        Just (moveField, exp) -> Just (moveField, exp) -- By scenario
+        _ ->
+            case finishingWin board of
+                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Win if possible
+                _ ->
+                    case finishingBlock board of
+                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Block if needed
+                        _ ->
+                            case takeCenter board of
+                                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Center if free
+                                _ ->
+                                    case takeAnyEmptyCorner board of
+                                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Any corner if free
+                                        _ ->
+                                            case takeAnyEmptyEdge board of
+                                                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Any edge if free
+                                                _ -> Nothing
 
 -- Finishing moves
 
