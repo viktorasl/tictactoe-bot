@@ -70,10 +70,10 @@ seqInfo' coords board sign rowInfo =
             case fieldExists board c of
                 Just (x, y, s) ->
                     if s == sign then
-                        seqInfo' coords board sign (RowInfo (free rowInfo) ((matchSign rowInfo) + 1))
+                        seqInfo' left board sign (RowInfo (free rowInfo) ((matchSign rowInfo) + 1))
                     else
-                        seqInfo' coords board sign (RowInfo (free rowInfo) (matchSign rowInfo))
-                Nothing -> seqInfo' coords board sign (RowInfo (c : (free rowInfo)) (matchSign rowInfo))
+                        seqInfo' left board sign (RowInfo (free rowInfo) (matchSign rowInfo))
+                Nothing -> seqInfo' left board sign (RowInfo (c : (free rowInfo)) (matchSign rowInfo))
 
 matchingScenario :: [ExpectedMove Coords] -> Board -> Maybe ScenarioMove
 matchingScenario scens board = 
