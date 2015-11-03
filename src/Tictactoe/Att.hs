@@ -13,7 +13,7 @@ playAttacker' moves board url =
     case moves of
         [] -> putStrLn "The game is finished"
         (move : left) -> do
-            putStrLn "Move"
+            playAttacker' left board url
 
 --(1,1) -> Just ((0,0,'o'),ExpOppositeCorner (2,2))
 --(2,2) -> Just ((0,2,'o'),NoExp)
