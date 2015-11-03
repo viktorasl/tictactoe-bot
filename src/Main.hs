@@ -1,4 +1,4 @@
-module TicTacToe
+module Main
 where
 import Data.Char
 import Data.List
@@ -20,6 +20,10 @@ type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
 type ScenarioMove = (BoardField, ExpectedMove Coords)
+
+main :: IO ()
+main = do
+    putStrLn "Main mundlee"
 
 testCase :: (Eq a) => a -> a -> String
 testCase res exp = if (res == exp) then "Pass" else "Fail"
