@@ -17,7 +17,8 @@ playAttacker' moves board url =
         [] -> putStrLn "The game is finished"
         ((x, y) : left) -> do
             makeMove (url ++ "/player/1") ((x, y, oppSign) : board)
-            playAttacker' left board url
+            newBoard <- getMove (url ++ "/player/1")
+            playAttacker' left newBoard url
 
 --(1,1) -> Just ((0,0,'o'),ExpOppositeCorner (2,2))
 --(2,2) -> Just ((0,2,'o'),NoExp)

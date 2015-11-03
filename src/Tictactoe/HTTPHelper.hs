@@ -1,7 +1,11 @@
-module Tictactoe.HTTPHelper where
+module Tictactoe.HTTPHelper (
+    getMove,
+    makeMove
+) where
 
 import Tictactoe.Base
 import Tictactoe.Encoder
+import Tictactoe.Decoder
 
 import Network.HTTP
 import Network.URI
@@ -27,8 +31,10 @@ getMoveRequestString urlString =
         Nothing -> error ("getRequest: Not a valid URL - " ++ urlString)
         Just uri  -> getMoveRequest uri
 
-getMove :: String -> IO String
-getMove url = simpleHTTP (getMoveRequestString url) >>= getResponseBody
+getMove :: String -> IO Board
+getMove url = do
+    resp <- simpleHTTP (getMoveRequestString url) >>= getResponseBody
+    return $ parseBoard resp
 
 makeMove :: String -> Board -> IO String
 makeMove url board = simpleHTTP (postRequestWithBody url "application/bencode+list" (stringifyBoard board)) >>= getResponseBody

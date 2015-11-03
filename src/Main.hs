@@ -25,12 +25,10 @@ mockResp = do
 
 waitForMove :: [ExpectedMove Coords] -> IO ()
 waitForMove scens = do
-    response <- getMove (gameURLStr ++ "player/2")
-    case parseBoard response of
-        board -> 
-            case def scens board of
-                Just (field, scen) -> do
-                    madeMove <- makeMove (gameURLStr ++ "player/2") (field : board)
-                    putStrLn madeMove
-                    waitForMove [scen]
-                _ -> putStrLn "The game is finished"
+    board <- getMove (gameURLStr ++ "player/2")
+    case def scens board of
+        Just (field, scen) -> do
+            madeMove <- makeMove (gameURLStr ++ "player/2") (field : board)
+            putStrLn madeMove
+            waitForMove [scen]
+        _ -> putStrLn "The game is finished"
