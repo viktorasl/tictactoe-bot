@@ -14,7 +14,7 @@ data ExpectedMove a = NoExp | ExpCenter | ExpAnyCorner | ExpOppositeCorner a | E
 data RowInfo = RowInfo {
     free :: [Coords]
     , matchSign :: Int
-}
+} deriving Show
 
 type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
@@ -62,6 +62,29 @@ def scens board =
         Just (moveField, exp) -> Just (moveField, exp)
         _ -> Nothing
 
+rw :: [[Coords]]
+rw = [[(a,b) | b <- [0..2]] | a <- [0..2]]
+
+-- Finishing moves
+
+finishHorizontal :: Board -> Char -> [RowInfo]
+finishHorizontal board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | b <- [0..2]] | a <- [0..2]]
+
+finishVertical :: Board -> Char -> [RowInfo]
+finishVertical board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | a <- [0..2]] | b <- [0..2]]
+
+diagonals :: [[Coords]]
+diagonals = [
+    [(a,a) | a <- [0..2]],
+    [(a,abs (a - 2)) | a <- [0..2]]
+    ]
+
+finishDiagonal :: Board -> Char -> [RowInfo]
+finishDiagonal board sign = map (\seqCoords -> seqInfo seqCoords board sign) diagonals
+
+seqInfo :: [Coords] -> Board -> Char -> RowInfo
+seqInfo coords board sign = seqInfo' coords board sign (RowInfo [] 0)
+
 seqInfo' :: [Coords] -> Board -> Char -> RowInfo -> RowInfo
 seqInfo' coords board sign rowInfo =
     case coords of
@@ -106,8 +129,8 @@ moveByScenario scen board =
         ExpOppositeSelfCorner coords ->
             case fieldExists board coords of
                 Just _ ->
-                    case takeAnyDiagonalLine board of
-                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Take any empty diagonal line
+                    case takeAnyEmptyEdge board of
+                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Take any empty edge
                         _ -> Nothing
                 _ -> Nothing
         NoExp -> Nothing
@@ -127,8 +150,8 @@ takeCenter board =
 takeAnyEmptyCorner :: Board -> Maybe Coords
 takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 0), (0, 2), (2, 0), (2, 2)]
 
-takeAnyDiagonalLine :: Board -> Maybe Coords
-takeAnyDiagonalLine board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
+takeAnyEmptyEdge :: Board -> Maybe Coords
+takeAnyEmptyEdge board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
 
 {-
 message to react to
