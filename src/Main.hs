@@ -1,17 +1,13 @@
 module Main
 where
-import Data.Char
-import Data.List
-import Data.Maybe
 import Tictactoe.Encoder
 import Tictactoe.Base
 import Tictactoe.Move
-
-defaultField = (0, 0, mySign)
+import Tictactoe.Decoder
 
 main :: IO ()
 main = do
-    putStrLn $ show $ miniPlay [(2, 0), (0, 2), (2, 1)] [ExpCenter, ExpAnyCorner] []
+    putStrLn $ show $ parseBoard "ld1:v1:o1:xi2e1:yi1eed1:v1:x1:xi0e1:yi1eed1:v1:o1:xi1e1:yi0eed1:v1:x1:xi2e1:yi0eee"
 
 testCase :: (Eq a) => a -> a -> String
 testCase res exp = if (res == exp) then "Pass" else "Fail"
@@ -64,37 +60,3 @@ miniPlay att scen board =
             in case defMove of
                 Just (moveField, exp) -> miniPlay left [exp] (moveField : newBoard)
                 _ -> board
-
--- Board parsing
-
-parseBoard :: String -> Board
-parseBoard ('l' : list) = parseBoardFields' list []
-
-parseBoardFields' :: String -> Board -> Board
-parseBoardFields' ('e' : dict) board = board
-parseBoardFields' ('d' : dict) board =
-    let
-    (field, rest) = parseBoardField' dict defaultField
-    in parseBoardFields' rest (field : board)
-
-parseChar :: String -> Char
-parseChar str = head $ drop 2 str
-
-parseInt :: String -> Int
-parseInt str = digitToInt $ head $ drop 1 str
-
-assignValueToKey :: String -> Char -> BoardField -> (BoardField, String)
-assignValueToKey str 'v' (x, y, v) = ((x, y, parseChar str), drop 3 str)
-assignValueToKey str 'x' (x, y, v) = ((parseInt str, y, v), drop 3 str)
-assignValueToKey str 'y' (x, y, v) = ((x, parseInt str, v), drop 3 str)
-
-parseBoardField' :: String -> BoardField -> (BoardField, String)
-parseBoardField' ('e' : rest) field = (field, rest) 
-parseBoardField' str field =
-    let
-    (key, rest) = parseBoardFieldKey str
-    (field', rest') = assignValueToKey rest key field
-    in parseBoardField' rest' field'
-
-parseBoardFieldKey :: String -> (Char, String)
-parseBoardFieldKey str = (head $ drop 2 str, drop 3 str)
