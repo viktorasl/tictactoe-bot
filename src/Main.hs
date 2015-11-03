@@ -3,6 +3,8 @@ where
 import Data.Char
 import Data.List
 import Data.Maybe
+import Tictactoe.Encoder
+import Tictactoe.Base
 
 mySign = 'o'
 oppSign = 'x'
@@ -17,8 +19,6 @@ data RowInfo = RowInfo {
 } deriving Show
 
 type Coords = (Int, Int)
-type BoardField = (Int, Int, Char)
-type Board = [BoardField]
 type ScenarioMove = (BoardField, ExpectedMove Coords)
 
 main :: IO ()
@@ -197,20 +197,6 @@ takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (fieldExi
 
 takeAnyEmptyEdge :: Board -> Maybe Coords
 takeAnyEmptyEdge board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
-
--- Stringifying playboard
-
-stringifyBoard :: Board -> String
-stringifyBoard board = "l" ++ (stringifyBoardFields board "") ++ "e"
-
-stringifyBoardFields :: Board -> String -> String
-stringifyBoardFields board str =
-    case board of
-        [] -> str
-        (field : left) -> stringifyBoardFields left (str ++ (stringifyField field))
-
-stringifyField :: BoardField -> String
-stringifyField (x, y, v) = "d1:v1:" ++ [v] ++ "1:xi" ++ (show x) ++ "e1:yi" ++ (show y) ++ "ee"
 
 -- Board parsing
 
