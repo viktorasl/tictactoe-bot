@@ -4,6 +4,7 @@ import Tictactoe.Encoder
 import Tictactoe.Base
 import Tictactoe.Move
 import Tictactoe.Decoder
+import Tictactoe.Att
 
 import Network.HTTP
 import Network.URI
@@ -11,18 +12,14 @@ import Network.BufferType
 import Network.HTTP.Base
 
 gameURLStr :: String
-gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex10/"
-
----- attacker
---main :: IO ()
---main = do
---    resp <- simpleHTTP (postRequestWithBody gameURLStr "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
---    putStrLn resp
+gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex13/"
 
 main :: IO ()
 main = do
-    resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
-    waitForMove [ExpCenter, ExpAnyCorner]
+    playAttacker gameURLStr
+    --resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
+    --putStrLn resp
+    --waitForMove [ExpCenter, ExpAnyCorner]
 
 mockResp :: IO String
 mockResp = do
