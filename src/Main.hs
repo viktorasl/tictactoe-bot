@@ -11,7 +11,7 @@ import Network.BufferType
 import Network.HTTP.Base
 
 gameURLStr :: String
-gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex4/"
+gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex10/"
 
 ---- attacker
 --main :: IO ()
@@ -21,7 +21,7 @@ gameURLStr = "http://tictactoe.homedir.eu/game/randomgamenamex4/"
 
 main :: IO ()
 main = do
-    --resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
+    resp <- simpleHTTP (postRequestWithBody (gameURLStr ++ "player/1") "application/bencode+list" (stringifyBoard [(1, 1, 'x')])) >>= getResponseBody
     waitForMove [ExpCenter, ExpAnyCorner]
 
 mockResp :: IO String
@@ -51,8 +51,18 @@ getMoveRequestString urlString =
 getMove :: String -> IO String
 getMove url = simpleHTTP (getMoveRequestString url) >>= getResponseBody
 
+makeMove :: String -> Board -> IO String
+makeMove url board = simpleHTTP (postRequestWithBody url "application/bencode+list" (stringifyBoard board)) >>= getResponseBody
+
 waitForMove :: [ExpectedMove Coords] -> IO ()
 waitForMove scens = do
-    response <- mockResp
-    --response <- getMove (gameURLStr ++ "player/2")
-    putStrLn response
+    --response <- mockResp
+    response <- getMove (gameURLStr ++ "player/2")
+    case parseBoard response of
+        board -> 
+            case def scens board of
+                Just (field, scen) -> do
+                    madeMove <- makeMove (gameURLStr ++ "player/2") (field : board)
+                    putStrLn madeMove
+                    waitForMove [scen]
+                _ -> putStrLn "The game is finished"
