@@ -57,6 +57,11 @@ testFinishingMoves = [
     testCase (finishingBlock [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')]) (Just (0,1))
     ]
 
+testBoardStringify :: [String]
+testBoardStringify = [
+    testCase (stringifyBoard [(2,1,'o'),(0,1,'x'),(1,0,'o'),(2,0,'x')]) "ld1:v1:o1:xi2e1:yi1eed1:v1:x1:xi0e1:yi1eed1:v1:o1:xi1e1:yi0eed1:v1:x1:xi2e1:yi0eee"
+    ]
+
 miniPlay :: [Coords] -> [ExpectedMove Coords] -> Board -> Board
 miniPlay att scen board =
     case att of
@@ -189,19 +194,19 @@ takeAnyEmptyCorner board = listToMaybe $ filter (\coords' -> isNothing (fieldExi
 takeAnyEmptyEdge :: Board -> Maybe Coords
 takeAnyEmptyEdge board = listToMaybe $ filter (\coords' -> isNothing (fieldExists board coords')) [(0, 1), (1, 0), (1, 2), (2, 1)]
 
-{-
-message to react to
-board:
-+-+-+-+
-| |X| |
-+-+-+-+
-|O| | |
-+-+-+-+
-|X|O| |
-+-+-+-+
--}
-message :: String
-message = "ld1:v1:x1:xi2e1:yi0eed1:v1:o1:xi1e1:yi0eed1:v1:x1:xi0e1:yi1eed1:v1:o1:xi2e1:yi1eee"
+-- Stringifying playboard
+
+stringifyBoard :: Board -> String
+stringifyBoard board = "l" ++ (stringifyBoardFields board "") ++ "e"
+
+stringifyBoardFields :: Board -> String -> String
+stringifyBoardFields board str =
+    case board of
+        [] -> str
+        (field : left) -> stringifyBoardFields left (str ++ (stringifyField field))
+
+stringifyField :: BoardField -> String
+stringifyField (x, y, v) = "d1:v1:" ++ [v] ++ "1:xi" ++ (show x) ++ "e1:yi" ++ (show y) ++ "ee"
 
 -- Board parsing
 
