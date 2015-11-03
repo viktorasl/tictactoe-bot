@@ -15,6 +15,13 @@ build-type:          Simple
 -- extra-source-files:  
 cabal-version:       >=1.10
 
+Test-Suite TictactoeTests
+    type:       exitcode-stdio-1.0
+    hs-source-dirs:      tests/Tictactoe
+    main-is:    Tests.hs
+    hs-source-dirs: src
+    build-depends: base, QuickCheck, HUnit
+
 executable TictactoeDefender
   main-is:             Main.hs
   -- other-modules:       
