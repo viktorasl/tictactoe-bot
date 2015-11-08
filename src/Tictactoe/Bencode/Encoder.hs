@@ -1,5 +1,7 @@
-module Tictactoe.Encoder
-where
+module Tictactoe.Bencode.Encoder (
+	stringifyBoard
+) where
+
 import Tictactoe.Base
 
 stringifyBoard :: Board -> String

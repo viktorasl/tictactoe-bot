@@ -4,8 +4,8 @@ module Tictactoe.HTTPHelper (
 ) where
 
 import Tictactoe.Base
-import Tictactoe.Encoder
-import Tictactoe.Decoder
+import Tictactoe.Bencode.Encoder
+import Tictactoe.Bencode.Decoder
 
 import Network.HTTP
 import Network.URI

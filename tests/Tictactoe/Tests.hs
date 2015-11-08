@@ -3,7 +3,8 @@ module Main where
 import Test.QuickCheck
 import Tictactoe.Base
 import Tictactoe.Move
-import Tictactoe.Encoder
+import Tictactoe.Bencode.Encoder
+import Tictactoe.Bencode.Decoder
 
 testCase :: (Eq a) => a -> a -> Bool
 testCase res exp = res == exp

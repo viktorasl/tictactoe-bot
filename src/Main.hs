@@ -1,9 +1,9 @@
 module Main where
 
-import Tictactoe.Encoder
 import Tictactoe.Base
+import Tictactoe.Bencode.Encoder
+import Tictactoe.Bencode.Decoder
 import Tictactoe.Move
-import Tictactoe.Decoder
 import Tictactoe.Att
 import Tictactoe.HTTPHelper
 

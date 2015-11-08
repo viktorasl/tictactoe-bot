@@ -1,5 +1,7 @@
-module Tictactoe.Decoder
-where
+module Tictactoe.Bencode.Decoder (
+    parseBoard
+) where
+
 import Tictactoe.Base
 import Data.Char
 
