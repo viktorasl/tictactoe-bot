@@ -1,9 +1,9 @@
-module Tictactoe.Att (playAttacker) where
+module Tictactoe.Att (
+	playAttacker
+) where
 
 import Tictactoe.Base
 import Tictactoe.HTTPHelper
-
-import Network.HTTP
 
 attMoves :: [Coords]
 attMoves = [(1,1),(2,2),(0,1),(1,0),(2,0)]
