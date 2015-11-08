@@ -1,5 +1,5 @@
 module Tictactoe.BencodeDict.Encoder (
-	stringifyBoard
+    stringifyBoard
 ) where
 
 import Tictactoe.Base

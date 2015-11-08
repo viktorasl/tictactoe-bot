@@ -1,5 +1,5 @@
 module Tictactoe.BencodeDict.Decoder (
-	parseBoard
+    parseBoard
 ) where
 
 import Tictactoe.Base
