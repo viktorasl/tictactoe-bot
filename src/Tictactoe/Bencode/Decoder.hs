@@ -1,5 +1,7 @@
 module Tictactoe.Bencode.Decoder (
-    parseBoard
+    parseBoard,
+    parseBoardField',
+    defaultField
 ) where
 
 import Tictactoe.Base
