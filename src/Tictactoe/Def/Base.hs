@@ -12,8 +12,13 @@ playDefender name = playDefender' (TictactoeReq Defender name BencodeList) [ExpC
 playDefender' :: TictactoeReq -> [ExpectedMove Coords] -> IO ()
 playDefender' req scens = do
     board <- getMove req
-    case def scens board of
-        Just (field, scen) -> do
-            madeMove <- makeMove req (field : board)
-            playDefender' req [scen]
-        _ -> putStrLn "The game is finished"
+    case gameState board oppSign of
+        Won -> putStrLn "You have won the game"
+        Lost -> putStrLn "You have lost the game"
+        Tie -> putStrLn "The game is tied"
+        Ongoing -> do
+            case def scens board of
+                Just (field, scen) -> do
+                    madeMove <- makeMove req (field : board)
+                    playDefender' req [scen]
+                _ -> putStrLn "The game is finished (should not be reachable)"
