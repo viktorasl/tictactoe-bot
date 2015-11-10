@@ -3,27 +3,22 @@ module Tictactoe.Att (
 ) where
 
 import Tictactoe.Base
-import Tictactoe.BencodeDict.Encoder
-import Tictactoe.BencodeDict.Decoder
 import Tictactoe.HTTPHelper
 
 attMoves :: [Coords]
 attMoves = [(1,1),(2,2),(0,1),(1,0),(2,0)]
 
-contentType :: String
-contentType = "application/bencode+map"
-
 playAttacker :: String -> IO ()
-playAttacker url = playAttacker' attMoves [] url
+playAttacker name = playAttacker' attMoves [] (TictactoeReq Attacker name BencodeDict)
 
-playAttacker' :: [Coords] -> Board -> String -> IO ()
-playAttacker' moves board url =
+playAttacker' :: [Coords] -> Board -> TictactoeReq -> IO ()
+playAttacker' moves board req =
     case moves of
         [] -> putStrLn "The game is finished"
         ((x, y) : left) -> do
-            makeMove (url ++ "/player/1") contentType (stringifyBoard ((x, y, oppSign) : board))
-            newBoard <- getMove (url ++ "/player/1") contentType
-            playAttacker' left (parseBoard newBoard) url
+            makeMove req ((x, y, oppSign) : board)
+            newBoard <- getMove req
+            playAttacker' left newBoard req
 
 --(1,1) -> Just ((0,0,'o'),ExpOppositeCorner (2,2))
 --(2,2) -> Just ((0,2,'o'),NoExp)

@@ -1,7 +1,5 @@
 module Tictactoe.HTTPHelper (
-    getMove',
     getMove,
-    makeMove',
     makeMove,
     TictactoePlayer(Attacker,Defender),
     TictactoeCType(BencodeList,BencodeDict),
@@ -33,14 +31,14 @@ data TictactoeReq = TictactoeReq {
   , contentType :: TictactoeCType
 }
 
+gameHost :: String
+gameHost = "http://tictactoe.homedir.eu/game"
+
 fullUrl :: TictactoeReq -> String
 fullUrl req = gameHost ++ "/" ++ (gameName req) ++ "/player/" ++ (show (player req))
 
 toBufOps :: BufferType a => Request a -> BufferOp a
 toBufOps _ = bufferOps
-
-gameHost :: String
-gameHost = "http://tictactoe.homedir.eu/game"
 
 getMoveRequest :: BufferType ty => URI -> String -> Request ty
 getMoveRequest uri acceptType =
@@ -62,8 +60,8 @@ getMoveRequestString urlString acceptType =
 boardifyString :: String -> TictactoeCType -> Board
 boardifyString strBoard cType =
   case cType of
-    BencodeList -> BencodeDict.parseBoard strBoard
-    BencodeDict -> BencodeList.parseBoard strBoard
+    BencodeList -> BencodeList.parseBoard strBoard
+    BencodeDict -> BencodeDict.parseBoard strBoard
 
 strBoard :: Board -> TictactoeCType -> String
 strBoard board cType =
@@ -71,16 +69,10 @@ strBoard board cType =
     BencodeDict -> BencodeDict.stringifyBoard board
     BencodeList -> BencodeList.stringifyBoard board
 
-getMove' :: TictactoeReq -> IO Board
-getMove' req = do
+getMove :: TictactoeReq -> IO Board
+getMove req = do
   resp <- simpleHTTP (getMoveRequestString (fullUrl req) (show (contentType req))) >>= getResponseBody
   return $ boardifyString resp (contentType req)
 
-makeMove' :: TictactoeReq -> Board -> IO String
-makeMove' req board = simpleHTTP (postRequestWithBody (fullUrl req) (show (contentType req)) (strBoard board (contentType req))) >>= getResponseBody
-
-getMove :: String -> String -> IO String
-getMove url acceptType = simpleHTTP (getMoveRequestString url acceptType) >>= getResponseBody
-
-makeMove :: String -> String -> String -> IO String
-makeMove url contentType strBoard = simpleHTTP (postRequestWithBody url contentType strBoard) >>= getResponseBody
+makeMove :: TictactoeReq -> Board -> IO String
+makeMove req board = simpleHTTP (postRequestWithBody (fullUrl req) (show (contentType req)) (strBoard board (contentType req))) >>= getResponseBody
