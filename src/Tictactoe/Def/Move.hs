@@ -39,7 +39,7 @@ finishingBlock block = finishingMove block oppSign
 
 finishingMove :: Board -> Char -> Maybe Coords
 finishingMove board sign = let
-    infos = (horizontalInfos board sign) ++ (verticalInfos board sign) ++ (diagonalInfos board sign)
+    infos = rowsInfos board sign
     satInfos = filter (\info -> ((matchSign info) == 2) && ((length (free info)) == 1)) infos
     in listToMaybe $ map (\info -> head (free info)) satInfos
 

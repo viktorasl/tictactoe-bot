@@ -2,7 +2,7 @@ module Tictactoe.Base (
     Coords,
     BoardField,
     Board,
-    BoardState(Won,Tie,Ongoing),
+    BoardState(Won,Lost,Tie,Ongoing),
     RowInfo(RowInfo),
     matchSign,
     free,
@@ -10,9 +10,8 @@ module Tictactoe.Base (
     coordsEqual,
     mySign,
     oppSign,
-    horizontalInfos,
-    verticalInfos,
-    diagonalInfos
+    rowsInfos,
+    gameState
 ) where
 import Data.Maybe
 
@@ -21,7 +20,8 @@ data RowInfo = RowInfo {
     , matchSign :: Int
 } deriving Show
 
-data BoardState = Won | Tie | Ongoing
+data BoardState = Won | Lost | Tie | Ongoing
+    deriving Eq
 type Coords = (Int, Int)
 type BoardField = (Int, Int, Char)
 type Board = [BoardField]
@@ -34,6 +34,19 @@ fieldExists board coords = listToMaybe $ filter (\field' -> coordsEqual coords f
 
 coordsEqual :: Coords -> BoardField -> Bool
 coordsEqual (x1, y1) (x2, y2, _) = if (x1 == x2 && y1 == y2) then True else False 
+
+gameState :: Board -> Char -> BoardState
+gameState board sign = let
+    infos = rowsInfos board sign
+    won = length (filter (\info -> (matchSign info) == 3) infos) > 0
+    lost = length (filter (\info -> ((matchSign info) == 0) && (length (free info) == 0)) infos) > 0
+    in case (won, lost) of
+        (True, False) -> Won
+        (False, True) -> Lost
+        _ -> if (length board) == 9 then Tie else Ongoing
+
+rowsInfos :: Board -> Char -> [RowInfo]
+rowsInfos board sign = (horizontalInfos board sign) ++ (verticalInfos board sign) ++ (diagonalInfos board sign)
 
 horizontalInfos :: Board -> Char -> [RowInfo]
 horizontalInfos board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | b <- [0..2]] | a <- [0..2]]
