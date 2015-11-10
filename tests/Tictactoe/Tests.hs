@@ -15,13 +15,10 @@ testCase res exp = res == exp
 
 main :: IO ()
 main = do
-    quickCheck $ testCase (DefMove.moveByScenario ExpCenter [(1, 1, 'x')]) (Just ((0, 0, 'o'), ExpOppositeCorner (2, 2)))
-    quickCheck $ testCase (DefMove.moveByScenario ExpAnyCorner [(0, 2, 'x')]) (Just ((1, 1, 'o'), ExpOppositeSelfCorner (2, 0)))
+    quickCheck $ testCase (DefMove.moveByScenario DefMove.First [(1, 1, 'x')]) (Just ((0, 0, 'o'), ExpOppositeCorner (2, 2)))
+    quickCheck $ testCase (DefMove.moveByScenario DefMove.First [(0, 2, 'x')]) (Just ((1, 1, 'o'), ExpOppositeSelfCorner (2, 0)))
     quickCheck $ testCase (DefMove.moveByScenario (ExpOppositeCorner (0, 2)) [(0, 0, 'x'), (1, 1, 'x'), (0, 2, 'o')]) (Just ((2, 0, 'o'), DefMove.NoExp))
     quickCheck $ testCase (DefMove.moveByScenario (ExpOppositeSelfCorner (2, 2)) [(0, 0, 'x'), (1, 1, 'o'), (2, 2, 'o')]) (Just ((0, 1, 'o'), DefMove.NoExp))
-    quickCheck $ testCase (DefMove.matchingScenario [ExpCenter, ExpAnyCorner] [(1, 1, 'x')]) (Just ((0, 0, 'o'), ExpOppositeCorner (2, 2)))
-    quickCheck $ testCase (DefMove.matchingScenario [ExpCenter, ExpAnyCorner] [(1, 0, 'x')]) (Nothing)
-    quickCheck $ testCase (DefMove.matchingScenario [ExpOppositeSelfCorner (2, 0)] [(0, 2, 'x'), (1, 1, 'o'), (2, 0, 'x')]) (Just ((0, 1, 'o'), DefMove.NoExp))
     quickCheck $ testCase (finishingMove [(1, 1, 'x'), (2, 2, 'x')] 'x') (Just (0,0))
     quickCheck $ testCase (finishingMove [(1, 1, 'x'), (2, 2, 'x')] 'o') Nothing
     quickCheck $ testCase (finishingMove [(1,1,'x'),(2,2,'o'),(0,0,'o')] 'x') Nothing

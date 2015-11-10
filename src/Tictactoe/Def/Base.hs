@@ -7,18 +7,18 @@ import Tictactoe.HTTPHelper
 import Tictactoe.Def.Move
 
 playDefender :: String -> IO ()
-playDefender name = playDefender' (TictactoeReq Defender name BencodeList) [ExpCenter, ExpAnyCorner]
+playDefender name = playDefender' (TictactoeReq Defender name BencodeList) First
 
-playDefender' :: TictactoeReq -> [ExpectedMove Coords] -> IO ()
-playDefender' req scens = do
+playDefender' :: TictactoeReq -> ExpectedMove Coords -> IO ()
+playDefender' req exp = do
     board <- getMove req
     case gameState board oppSign of
         Won -> putStrLn "You have won the game"
         Lost -> putStrLn "You have lost the game"
         Tie -> putStrLn "The game is tied"
         Ongoing -> do
-            case def scens board of
+            case def exp board of
                 Just (field, scen) -> do
                     madeMove <- makeMove req (field : board)
-                    playDefender' req [scen]
+                    playDefender' req exp
                 _ -> putStrLn "The game is finished (should not be reachable)"
