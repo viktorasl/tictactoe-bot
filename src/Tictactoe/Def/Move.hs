@@ -1,14 +1,10 @@
-module Tictactoe.Move
+module Tictactoe.Def.Move
 where
 import Data.Maybe
 import Tictactoe.Base
 
 data ExpectedMove a = NoExp | ExpCenter | ExpAnyCorner | ExpOppositeCorner a | ExpOppositeSelfCorner a
     deriving (Show, Eq)
-data RowInfo = RowInfo {
-    free :: [Coords]
-    , matchSign :: Int
-} deriving Show
 
 type ScenarioMove = (BoardField, ExpectedMove Coords)
 
@@ -43,40 +39,9 @@ finishingBlock block = finishingMove block oppSign
 
 finishingMove :: Board -> Char -> Maybe Coords
 finishingMove board sign = let
-    infos = (finishHorizontal board sign) ++ (finishVertical board sign) ++ (finishDiagonal board sign)
+    infos = (horizontalInfos board sign) ++ (verticalInfos board sign) ++ (diagonalInfos board sign)
     satInfos = filter (\info -> ((matchSign info) == 2) && ((length (free info)) == 1)) infos
     in listToMaybe $ map (\info -> head (free info)) satInfos
-
-finishHorizontal :: Board -> Char -> [RowInfo]
-finishHorizontal board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | b <- [0..2]] | a <- [0..2]]
-
-finishVertical :: Board -> Char -> [RowInfo]
-finishVertical board sign = map (\seqCoords -> seqInfo seqCoords board sign) [[(a,b) | a <- [0..2]] | b <- [0..2]]
-
-diagonals :: [[Coords]]
-diagonals = [
-    [(a,a) | a <- [0..2]],
-    [(a,abs (a - 2)) | a <- [0..2]]
-    ]
-
-finishDiagonal :: Board -> Char -> [RowInfo]
-finishDiagonal board sign = map (\seqCoords -> seqInfo seqCoords board sign) diagonals
-
-seqInfo :: [Coords] -> Board -> Char -> RowInfo
-seqInfo coords board sign = seqInfo' coords board sign (RowInfo [] 0)
-
-seqInfo' :: [Coords] -> Board -> Char -> RowInfo -> RowInfo
-seqInfo' coords board sign rowInfo =
-    case coords of
-        [] -> rowInfo
-        (c : left) ->
-            case fieldExists board c of
-                Just (x, y, s) ->
-                    if s == sign then
-                        seqInfo' left board sign (RowInfo (free rowInfo) ((matchSign rowInfo) + 1))
-                    else
-                        seqInfo' left board sign (RowInfo (free rowInfo) (matchSign rowInfo))
-                Nothing -> seqInfo' left board sign (RowInfo (c : (free rowInfo)) (matchSign rowInfo))
 
 matchingScenario :: [ExpectedMove Coords] -> Board -> Maybe ScenarioMove
 matchingScenario scens board = 

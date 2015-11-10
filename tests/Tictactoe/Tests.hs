@@ -2,7 +2,7 @@ module Main where
 
 import Test.QuickCheck
 import Tictactoe.Base
-import Tictactoe.Move
+import Tictactoe.Def.Move
 import Tictactoe.Bencode.Encoder as Bencode
 import Tictactoe.Bencode.Decoder as Bencode
 import Tictactoe.BencodeDict.Encoder as BencodeDict

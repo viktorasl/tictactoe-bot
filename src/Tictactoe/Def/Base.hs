@@ -1,10 +1,10 @@
-module Tictactoe.Def (
+module Tictactoe.Def.Base (
     playDefender
 ) where
 
 import Tictactoe.Base
 import Tictactoe.HTTPHelper
-import Tictactoe.Move
+import Tictactoe.Def.Move
 
 playDefender :: String -> IO ()
 playDefender name = playDefender' (TictactoeReq Defender name BencodeList) [ExpCenter, ExpAnyCorner]

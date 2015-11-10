@@ -1,7 +1,7 @@
 module Main where
 
 import Tictactoe.Att
-import Tictactoe.Def
+import Tictactoe.Def.Base
 
 main :: IO ()
 main = do
