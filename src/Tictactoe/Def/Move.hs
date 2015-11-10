@@ -14,21 +14,9 @@ def scens board =
     case matchingScenario scens board of
         Just (moveField, exp) -> Just (moveField, exp) -- By scenario
         _ ->
-            case finishingWin board mySign of
-                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Win if possible
-                _ ->
-                    case finishingBlock board oppSign of
-                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Block if needed
-                        _ ->
-                            case takeCenter board of
-                                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Center if free
-                                _ ->
-                                    case takeAnyEmptyCorner board of
-                                        Just (x, y) -> Just ((x, y, mySign), NoExp) -- Any corner if free
-                                        _ ->
-                                            case takeAnyEmptyEdge board of
-                                                Just (x, y) -> Just ((x, y, mySign), NoExp) -- Any edge if free
-                                                _ -> Nothing
+            case defaultMove board mySign oppSign of
+                Just boardField -> Just (boardField, NoExp)
+                _ -> Nothing
 
 -- Finishing moves
 

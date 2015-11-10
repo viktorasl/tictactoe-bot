@@ -3,11 +3,23 @@ where
 import Data.Maybe
 import Tictactoe.Base
 
-finishingWin :: Board -> Char -> Maybe Coords
-finishingWin board sign = finishingMove board sign
-
-finishingBlock :: Board -> Char -> Maybe Coords
-finishingBlock board sign = finishingMove board sign
+defaultMove :: Board -> Char -> Char -> Maybe BoardField
+defaultMove board mySign oppSign =
+    case finishingMove board mySign of
+        Just (x, y) -> Just (x, y, mySign) -- Win if possible
+        _ ->
+            case finishingMove board oppSign of
+                Just (x, y) -> Just (x, y, mySign) -- Block if needed
+                _ ->
+                    case takeCenter board of
+                        Just (x, y) -> Just (x, y, mySign) -- Center if free
+                        _ ->
+                            case takeAnyEmptyCorner board of
+                                Just (x, y) -> Just (x, y, mySign) -- Any corner if free
+                                _ ->
+                                    case takeAnyEmptyEdge board of
+                                        Just (x, y) -> Just (x, y, mySign) -- Any edge if free
+                                        _ -> Nothing
 
 finishingMove :: Board -> Char -> Maybe Coords
 finishingMove board sign = let

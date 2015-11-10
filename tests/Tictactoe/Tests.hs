@@ -22,14 +22,14 @@ main = do
     quickCheck $ testCase (DefMove.matchingScenario [ExpCenter, ExpAnyCorner] [(1, 1, 'x')]) (Just ((0, 0, 'o'), ExpOppositeCorner (2, 2)))
     quickCheck $ testCase (DefMove.matchingScenario [ExpCenter, ExpAnyCorner] [(1, 0, 'x')]) (Nothing)
     quickCheck $ testCase (DefMove.matchingScenario [ExpOppositeSelfCorner (2, 0)] [(0, 2, 'x'), (1, 1, 'o'), (2, 0, 'x')]) (Just ((0, 1, 'o'), DefMove.NoExp))
-    quickCheck $ testCase (finishingBlock [(1, 1, 'x'), (2, 2, 'x')] 'x') (Just (0,0))
-    quickCheck $ testCase (finishingWin [(1, 1, 'x'), (2, 2, 'x')] 'o') Nothing
-    quickCheck $ testCase (finishingBlock [(1,1,'x'),(2,2,'o'),(0,0,'o')] 'x') Nothing
-    quickCheck $ testCase (finishingBlock [(1,0,'x'),(1,1,'x')] 'x') (Just (1,2))
-    quickCheck $ testCase (finishingWin [(1,0,'x'),(1,1,'x')] 'o') Nothing
-    quickCheck $ testCase (finishingWin [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o')] 'o') (Just (0,2))
-    quickCheck $ testCase (finishingWin [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')] 'o') Nothing
-    quickCheck $ testCase (finishingBlock [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')] 'x') (Just (0,1))
+    quickCheck $ testCase (finishingMove [(1, 1, 'x'), (2, 2, 'x')] 'x') (Just (0,0))
+    quickCheck $ testCase (finishingMove [(1, 1, 'x'), (2, 2, 'x')] 'o') Nothing
+    quickCheck $ testCase (finishingMove [(1,1,'x'),(2,2,'o'),(0,0,'o')] 'x') Nothing
+    quickCheck $ testCase (finishingMove [(1,0,'x'),(1,1,'x')] 'x') (Just (1,2))
+    quickCheck $ testCase (finishingMove [(1,0,'x'),(1,1,'x')] 'o') Nothing
+    quickCheck $ testCase (finishingMove [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o')] 'o') (Just (0,2))
+    quickCheck $ testCase (finishingMove [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')] 'o') Nothing
+    quickCheck $ testCase (finishingMove [(0,0,'x'),(1,1,'x'),(2,2,'o'),(2,0,'x'),(1,0,'o'),(1,2,'o'),(0,2,'x')] 'x') (Just (0,1))
     quickCheck $ testCase (Bencode.parseBoard "ld1:v1:o1:xi2e1:yi1eed1:v1:x1:xi0e1:yi1eed1:v1:o1:xi1e1:yi0eed1:v1:x1:xi2e1:yi0eee") [(2,0,'x'),(1,0,'o'),(0,1,'x'),(2,1,'o')]
     quickCheck $ testCase (Bencode.stringifyBoard [(2,1,'o'),(0,1,'x'),(1,0,'o'),(2,0,'x')]) "ld1:v1:o1:xi2e1:yi1eed1:v1:x1:xi0e1:yi1eed1:v1:o1:xi1e1:yi0eed1:v1:x1:xi2e1:yi0eee"
     quickCheck $ testCase (BencodeDict.parseBoard "d1:0d1:v1:x1:xi1e1:yi1ee1:1d1:v1:o1:xi1e1:yi0ee1:2d1:v1:x1:xi0e1:yi2ee1:3d1:v1:o1:xi0e1:yi0eee") [(0,0,'o'),(0,2,'x'),(1,0,'o'),(1,1,'x')]
