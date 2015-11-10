@@ -9,6 +9,15 @@ data ExpectedMove a b = NoExp | First | Either a b
 
 type ScenarioMove = (BoardField, ExpectedMove Coords Coords)
 
+att :: ExpectedMove Coords Coords -> Board -> Maybe (BoardField, (ExpectedMove Coords Coords))
+att exp board =
+    case moveByScenario exp board of
+        Just scenMove -> Just scenMove -- By scenario
+        _ ->
+            case defaultMove board oppSign mySign of -- default move
+                Just boardField -> Just (boardField, NoExp)
+                _ -> Nothing
+
 moveByScenario :: ExpectedMove Coords Coords -> Board -> Maybe ScenarioMove
 moveByScenario scen board =
     case scen of
