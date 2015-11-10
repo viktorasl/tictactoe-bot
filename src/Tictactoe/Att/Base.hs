@@ -1,4 +1,4 @@
-module Tictactoe.Att (
+module Tictactoe.Att.Base (
     playAttacker
 ) where
 
